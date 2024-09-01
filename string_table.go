@@ -1,6 +1,9 @@
 package manta
 
 import (
+	"fmt"
+	"runtime/debug"
+
 	"github.com/dotabuff/manta/dota"
 	"github.com/golang/snappy"
 )
@@ -166,6 +169,7 @@ func (p *Parser) onCSVCMsg_UpdateStringTable(m *dota.CSVCMsg_UpdateStringTable) 
 func parseStringTable(buf []byte, numUpdates int32, name string, userDataFixed bool, userDataSize int32, flags int32, varintBitCounts bool) (items []*stringTableItem) {
 	defer func() {
 		if err := recover(); err != nil {
+			fmt.Println("stacktrace from panic: \n" + string(debug.Stack()))
 			_debugf("warning: unable to parse string table %s: %s", name, err)
 			return
 		}

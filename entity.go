@@ -265,6 +265,7 @@ func (p *Parser) onCSVCMsg_PacketEntities(m *dota.CSVCMsg_PacketEntities) error 
 				}
 
 				e = newEntity(index, serial, class)
+				//fmt.Println("starting entity, created/entered", e)
 				p.entities[index] = e
 				readFields(newReader(baseline), class.serializer, e.state)
 				readFields(r, class.serializer, e.state)
@@ -276,6 +277,7 @@ func (p *Parser) onCSVCMsg_PacketEntities(m *dota.CSVCMsg_PacketEntities) error 
 				}
 
 				op = EntityOpUpdated
+				//fmt.Println("starting entity, op", e, op)
 				if !e.active {
 					e.active = true
 					op |= EntityOpEntered
@@ -300,6 +302,7 @@ func (p *Parser) onCSVCMsg_PacketEntities(m *dota.CSVCMsg_PacketEntities) error 
 			}
 		}
 
+		//fmt.Println("entity, op", e, op)
 		tuples = append(tuples, tuple{e, op})
 	}
 

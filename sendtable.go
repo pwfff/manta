@@ -8,6 +8,7 @@ import (
 var pointerTypes = map[string]bool{
 	"PhysicsRagdollPose_t":       true,
 	"CBodyComponent":             true,
+	"CLightComponent":            true,
 	"CEntityIdentity":            true,
 	"CPhysicsComponent":          true,
 	"CRenderComponent":           true,
@@ -33,6 +34,8 @@ func (p *Parser) onCDemoSendTables(m *dota.CDemoSendTables) error {
 	if err := proto.Unmarshal(buf, msg); err != nil {
 		return err
 	}
+
+	//fmt.Println("gamebuild", p.GameBuild)
 
 	patches := []fieldPatch{}
 	for _, h := range fieldPatches {
@@ -80,6 +83,7 @@ func (p *Parser) onCDemoSendTables(m *dota.CDemoSendTables) error {
 				// determine field model
 				if field.serializer != nil {
 					if field.fieldType.pointer || pointerTypes[field.fieldType.baseType] {
+						//fmt.Println("pointer type", field.varName, field.serializerName)
 						field.setModel(fieldModelFixedTable)
 					} else {
 						field.setModel(fieldModelVariableTable)
@@ -101,6 +105,10 @@ func (p *Parser) onCDemoSendTables(m *dota.CDemoSendTables) error {
 		}
 
 		// store the serializer for field reference
+		//fmt.Println("storing serializer for name", serializer.name)
+		//for _, field := range serializer.fields {
+		//	fmt.Println("  field", field.varName, field.varType, "serializer:", field.serializerName, "basetype:", field.fieldType.baseType)
+		//}
 		p.serializers[serializer.name] = serializer
 
 		if _, ok := p.classesByName[serializer.name]; ok {

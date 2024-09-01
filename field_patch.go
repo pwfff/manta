@@ -12,6 +12,7 @@ type fieldPatch struct {
 
 var fieldPatches = []fieldPatch{
 	fieldPatch{0, 990, func(f *field) {
+		//fmt.Println("patch 1")
 		switch f.varName {
 		case
 			"angExtraLocalAngles",
@@ -49,6 +50,7 @@ var fieldPatches = []fieldPatch{
 		}
 	}},
 	fieldPatch{0, 954, func(f *field) {
+		//fmt.Println("patch 2")
 		switch f.varName {
 		case "m_flMana", "m_flMaxMana":
 			f.lowValue = nil
@@ -56,6 +58,7 @@ var fieldPatches = []fieldPatch{
 		}
 	}},
 	fieldPatch{1016, 1027, func(f *field) {
+		//fmt.Println("patch 3")
 		switch f.varName {
 		case
 			"m_bItemWhiteList",
@@ -69,11 +72,24 @@ var fieldPatches = []fieldPatch{
 		}
 	}},
 	fieldPatch{0, 0, func(f *field) {
+		//fmt.Println("patch 4")
 		switch f.varName {
 		case "m_flSimulationTime", "m_flAnimTime":
 			f.encoder = "simtime"
-		case "m_flRuneTime":
-			f.encoder = "runetime"
+			//case "m_flRuneTime":
+			//	f.encoder = "runetime"
+			//	//case "m_vecX", "m_vecY", "m_vecZ":
+			//	//	f.encoder = "coord"
+			//case "m_flPreSimTime", "m_flStartTime": //, "m_flPreSimTime", "m_flFreezeTransitionDuration":
+			//	f.encoder = "runetime"
+			//case
+			//	"angExtraLocalAngles",
+			//	"angLocalAngles",
+			//	"m_angInitialAngles",
+			//	"m_angRotation",
+			//	"m_ragAngles",
+			//	"m_vLightDirection":
+			//	f.encoder = "qangle_pitch_yaw"
 		}
 	}},
 }

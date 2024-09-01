@@ -80,6 +80,7 @@ func (p *Parser) onCDemoPacket(m *dota.CDemoPacket) error {
 
 	// Dispatch messages in order, returning on handler error.
 	for _, m := range ms {
+		//fmt.Println("demo packet type", m.t)
 		if err := p.Callbacks.callByPacketType(m.t, m.buf); err != nil {
 			return err
 		}

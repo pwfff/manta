@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"runtime/debug"
 
 	"github.com/dotabuff/manta/dota"
 	"github.com/golang/snappy"
@@ -122,6 +123,7 @@ func (p *Parser) Start() (err error) {
 
 	defer func() {
 		if p := recover(); p != nil {
+			fmt.Println("stacktrace from panic: \n" + string(debug.Stack()))
 			if e, ok := p.(error); ok {
 				err = e
 			} else {
@@ -140,6 +142,7 @@ func (p *Parser) Start() (err error) {
 
 		msg, err = p.readOuterMessage()
 		if err != nil {
+			fmt.Println(err.Error())
 			if err == io.EOF {
 				err = nil
 			}
@@ -149,6 +152,7 @@ func (p *Parser) Start() (err error) {
 		p.Tick = msg.tick
 
 		if err = p.Callbacks.callByDemoType(msg.typeId, msg.data); err != nil {
+			fmt.Println(err.Error())
 			return
 		}
 	}
@@ -232,6 +236,8 @@ func (p *Parser) readOuterMessage() (*outerMessage, error) {
 			return nil, err
 		}
 	}
+
+	//fmt.Println("outermessage type", msgType)
 
 	// Return the message
 	msg := &outerMessage{

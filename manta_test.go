@@ -709,23 +709,23 @@ func (s testScenario) test(t *testing.T) {
 	})
 
 	parser.OnGameEvent("dota_combatlog", func(m *GameEvent) error {
-		gotCombatLogEvents += 1
+		//gotCombatLogEvents += 1
 
-		t, err := m.GetInt32("type")
-		assert.Nil(err)
+		//t, err := m.GetInt32("type")
+		//assert.Nil(err)
 
-		switch dota.DOTA_COMBATLOG_TYPES(t) {
-		case dota.DOTA_COMBATLOG_TYPES_DOTA_COMBATLOG_DAMAGE:
-			v, err := m.GetInt32("value")
-			assert.Nil(err)
-			gotCombatLogDamage += v
-		case dota.DOTA_COMBATLOG_TYPES_DOTA_COMBATLOG_DEATH:
-			gotCombatLogDeaths += 1
-		case dota.DOTA_COMBATLOG_TYPES_DOTA_COMBATLOG_HEAL:
-			v, err := m.GetInt32("value")
-			assert.Nil(err)
-			gotCombatLogHealing += v
-		}
+		//switch dota.DOTA_COMBATLOG_TYPES(t) {
+		//case dota.DOTA_COMBATLOG_TYPES_DOTA_COMBATLOG_DAMAGE:
+		//	v, err := m.GetInt32("value")
+		//	assert.Nil(err)
+		//	gotCombatLogDamage += v
+		//case dota.DOTA_COMBATLOG_TYPES_DOTA_COMBATLOG_DEATH:
+		//	gotCombatLogDeaths += 1
+		//case dota.DOTA_COMBATLOG_TYPES_DOTA_COMBATLOG_HEAL:
+		//	v, err := m.GetInt32("value")
+		//	assert.Nil(err)
+		//	gotCombatLogHealing += v
+		//}
 
 		return nil
 	})

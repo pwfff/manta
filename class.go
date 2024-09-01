@@ -10,7 +10,7 @@ import (
 	"github.com/dotabuff/manta/dota"
 )
 
-var gameBuildRegexp = regexp.MustCompile(`/dota_v(\d+)/`)
+var gameBuildRegexp = regexp.MustCompile(`/citadel_v(\d+)/`)
 
 type class struct {
 	classId    int32
@@ -59,9 +59,11 @@ func (p *Parser) onCSVCMsg_ServerInfo(m *dota.CSVCMsg_ServerInfo) error {
 
 // Internal callback for OnCDemoClassInfo.
 func (p *Parser) onCDemoClassInfo(m *dota.CDemoClassInfo) error {
+	//fmt.Println("onCDemoClassInfo")
 	for _, c := range m.GetClasses() {
 		classId := c.GetClassId()
 		networkName := c.GetNetworkName()
+		//fmt.Println("classId", classId, "networkName", networkName)
 
 		class := &class{
 			classId:    classId,

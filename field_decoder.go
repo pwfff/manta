@@ -1,6 +1,7 @@
 package manta
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -14,10 +15,12 @@ var fieldTypeFactories = map[string]fieldFactory{
 	"Vector2D":                 vectorFactory(2),
 	"Vector4D":                 vectorFactory(4),
 	"uint64":                   unsigned64Factory,
+	"MatchID_t":                unsigned64Factory,
 	"QAngle":                   qangleFactory,
 	"CHandle":                  unsignedFactory,
 	"CStrongHandle":            unsigned64Factory,
 	"CEntityHandle":            unsignedFactory,
+	"GameTime_t":               floatFactory,
 }
 
 var fieldNameDecoders = map[string]fieldDecoder{}
@@ -34,13 +37,22 @@ var fieldTypeDecoders = map[string]fieldDecoder{
 	"uint32":  unsignedDecoder,
 	"uint8":   unsignedDecoder,
 
-	"GameTime_t": noscaleDecoder,
+	//"AttachmentHandle_t":                unsignedDecoder,
+	//"ShardSolid_t":                      unsignedDecoder,
+	//"DoorState_t":                       unsignedDecoder,
+	//"PointWorldTextReorientMode_t":      unsignedDecoder,
+	//"PointWorldTextJustifyVertical_t":   unsignedDecoder,
+	//"PointWorldTextJustifyHorizontal_t": unsignedDecoder,
+
+	//"style_index_t": byteDecoder,
+	//"itemid_t": unsignedDecoder,
 
 	"CBodyComponent":       componentDecoder,
 	"CGameSceneNodeHandle": unsignedDecoder,
 	"Color":                unsignedDecoder,
 	"CPhysicsComponent":    componentDecoder,
 	"CRenderComponent":     componentDecoder,
+	"CLightComponent":      componentDecoder,
 	"CUtlString":           stringDecoder,
 	"CUtlStringToken":      unsignedDecoder,
 	"CUtlSymbolLarge":      stringDecoder,
@@ -59,6 +71,7 @@ func unsigned64Factory(f *field) fieldDecoder {
 }
 
 func floatFactory(f *field) fieldDecoder {
+	//fmt.Println("picking decoder for float", f.getName(), f.encoder, derefStr(f.bitCount))
 	switch f.encoder {
 	case "coord":
 		return floatCoordDecoder
@@ -75,7 +88,15 @@ func floatFactory(f *field) fieldDecoder {
 	return quantizedFactory(f)
 }
 
+func derefStr[T any](v *T) string {
+	if v == nil {
+		return "nil"
+	}
+	return fmt.Sprintf("%d", *v)
+}
+
 func quantizedFactory(f *field) fieldDecoder {
+	//fmt.Println("quantized factory", f.getName(), derefStr(f.bitCount), derefStr(f.encodeFlags), derefStr(f.lowValue), derefStr(f.highValue))
 	qfd := newQuantizedFloatDecoder(f.bitCount, f.encodeFlags, f.lowValue, f.highValue)
 	return func(r *reader) interface{} {
 		return qfd.decode(r)
@@ -103,6 +124,10 @@ func vectorNormalDecoder(r *reader) interface{} {
 	return r.read3BitNormal()
 }
 
+func byteDecoder(r *reader) interface{} {
+	return r.readByte()
+}
+
 func fixed64Decoder(r *reader) interface{} {
 	return r.readLeUint64()
 }
@@ -120,6 +145,7 @@ func stringDecoder(r *reader) interface{} {
 }
 
 func defaultDecoder(r *reader) interface{} {
+	//fmt.Println("in default decoder")
 	return r.readVarUint32()
 }
 
@@ -152,6 +178,33 @@ func qangleFactory(f *field) fieldDecoder {
 				r.readAngle(n),
 				0.0,
 			}
+		}
+	}
+
+	if f.encoder == "qangle_precise" {
+		var n uint32 = 20
+		return func(r *reader) interface{} {
+			rx := r.readBoolean()
+			ry := r.readBoolean()
+			rz := r.readBoolean()
+
+			ret := []float32{
+				0.0,
+				0.0,
+				0.0,
+			}
+
+			if rx {
+				ret[0] = r.readAngle(n)
+			}
+			if ry {
+				ret[1] = r.readAngle(n)
+			}
+			if rz {
+				ret[2] = r.readAngle(n)
+			}
+
+			return ret
 		}
 	}
 
@@ -213,13 +266,22 @@ func findDecoder(f *field) fieldDecoder {
 		return v
 	}
 
+	//fmt.Println("default decoder for", f.varName, f.fieldType.baseType)
+
 	return defaultDecoder
 }
 
-func findDecoderByBaseType(baseType string) fieldDecoder {
+func findDecoderByBaseType(f *field, baseType string) fieldDecoder {
 	if v, ok := fieldTypeDecoders[baseType]; ok {
+		//fmt.Println("useful decoder for baseType", baseType)
 		return v
 	}
+
+	if v, ok := fieldTypeFactories[baseType]; ok {
+		return v(f)
+	}
+
+	//fmt.Println("default decoder for baseType", baseType)
 
 	return defaultDecoder
 }

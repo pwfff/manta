@@ -34,16 +34,16 @@ type GameEvent struct {
 }
 
 func (ge *GameEvent) TypeName() string {
-	return dota.DOTA_COMBATLOG_TYPES_name[ge.m.GetKeys()[0].GetValByte()]
+	return dota.ECitadelGameEvents_name[ge.m.GetKeys()[0].GetValByte()]
 }
 
-func (ge *GameEvent) Type() dota.DOTA_COMBATLOG_TYPES {
-	return dota.DOTA_COMBATLOG_TYPES(ge.m.GetKeys()[0].GetValByte())
+func (ge *GameEvent) Type() dota.ECitadelGameEvents {
+	return dota.ECitadelGameEvents(ge.m.GetKeys()[0].GetValByte())
 }
 
 func (ge *GameEvent) String() string {
 	keys := ge.m.GetKeys()
-	name := dota.DOTA_COMBATLOG_TYPES_name[keys[0].GetValByte()]
+	name := dota.ECitadelGameEvents_name[keys[0].GetValByte()]
 	buf := bytes.NewBufferString("\n  " + name + "\n")
 
 	for name, field := range ge.t.fields {
@@ -220,6 +220,8 @@ func (p *Parser) onCMsgSource1LegacyGameEvent(m *dota.CMsgSource1LegacyGameEvent
 	if !ok {
 		return _errorf("unknown event id: %d", m.GetEventid())
 	}
+
+	//fmt.Println("game event", name)
 
 	// Get the handlers for the event name. Return early if none.
 	handlers := p.gameEventHandlers[name]
