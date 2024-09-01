@@ -46,6 +46,17 @@ type dotaMessage struct {
 	isPacket bool
 }
 
+var mismatches = map[string]struct{}{
+	"CCitadelUserMsg_SpeechBubble":        {},
+	"CCitadelUserMsg_AbilityNotify":       {},
+	"CCitadelUserMsg_ObjectiveMask":       {},
+	"CCitadelUserMsg_ModifierApplied":     {},
+	"CCitadelUserMsg_Damage":              {},
+	"CCitadelUserMsg_BulletHit":           {},
+	"CCitadelUserMsg_AbilityFailed":       {},
+	"CCitadelUserMsg_AuraModifierApplied": {},
+}
+
 // messageTypes are constant defined message type mappings, edit as necessary.
 var messageTypes = []*dotaMessage{
 	&dotaMessage{
@@ -74,6 +85,49 @@ var messageTypes = []*dotaMessage{
 		},
 		isPacket: false,
 	},
+
+	// CMsg stolen from dota
+	&dotaMessage{
+		typeRe:     regexp.MustCompile("^CMsg"),
+		enumName:   "ECitadelGameEvents",
+		enumValues: map[string]int{},
+		enumToType: func(s string) (string, bool) {
+			return strings.Replace(s, "ECitadelGameEvents_GE_", "CMsg", 1), true
+		},
+		enumToCallback: func(s string) (string, bool) {
+			return "", false
+		},
+		isPacket: true,
+	},
+	//&dotaMessage{
+	//	typeRe:     regexp.MustCompile("^CMsg"),
+	//	enumName:   "ECitadelClientMessages",
+	//	enumValues: map[string]int{},
+	//	enumToType: func(s string) (string, bool) {
+	//		return strings.Replace(s, "EGCCitadelClientMessages_k_EMsg", "CMsg", 1), true
+	//	},
+	//	enumToCallback: func(s string) (string, bool) {
+	//		return "", false
+	//	},
+	//	isPacket: true,
+	//},
+	&dotaMessage{
+		typeRe:     regexp.MustCompile("^CCitadelUserMsg_"),
+		enumName:   "CitadelUserMessageIds",
+		enumValues: map[string]int{},
+		enumToType: func(s string) (string, bool) {
+			corrected := strings.Replace(s, "CitadelUserMessageIds_k_EUserMsg_", "CCitadelUserMsg_", 1)
+			if _, ok := mismatches[corrected]; ok {
+				corrected = strings.Replace(s, "CitadelUserMessageIds_k_EUserMsg_", "CCitadelUserMessage_", 1)
+			}
+			return corrected, true
+		},
+		enumToCallback: func(s string) (string, bool) {
+			return "", false
+		},
+		isPacket: true,
+	},
+
 	&dotaMessage{
 		typeRe:     regexp.MustCompile("^CNETMsg_"),
 		enumName:   "NET_Messages",

@@ -110,10 +110,6 @@ message CNETMsg_SplitScreenUser {
 	optional int32 slot = 1;
 }
 
-message CNETMsg_Disconnect_Legacy {
-	optional ENetworkDisconnectionReason reason = 2;
-}
-
 message CNETMsg_Tick {
 	optional uint32 tick = 1;
 	optional uint32 host_frametime = 2;
@@ -126,6 +122,7 @@ message CNETMsg_Tick {
 	optional uint32 hltv_replay_flags = 9;
 	optional uint32 expected_long_tick = 10;
 	optional string expected_long_tick_reason = 11;
+	optional uint32 jitter = 12;
 }
 
 message CNETMsg_StringCmd {
